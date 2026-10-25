@@ -1,0 +1,36 @@
+name: Build SinceDungeon jars
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Build Core + Premium
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build --no-daemon
+
+      - name: Show built files
+        run: ls -la build/libs
+
+      - name: Upload jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: SinceDungeon-jars
+          path: |
+            build/libs/SinceDungeon-*.jar
+            !build/libs/*-original.jar
+          retention-days: 30
